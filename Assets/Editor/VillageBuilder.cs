@@ -90,6 +90,7 @@ public static class VillageBuilder
 
         GameObject interior = new GameObject(label + "_Interior");
         interior.transform.SetParent(parent);
+        interior.transform.position = new Vector3(120f, 0f, index * 20f);
         interior.SetActive(false);
         BuildRoom(interior.transform, wall, wood, gold, index);
 
@@ -142,14 +143,14 @@ public static class VillageBuilder
     private static void AddPortal(Transform parent,string name,Vector3 pos,GameObject outside,GameObject inside,
         Transform outSpawn,Transform inSpawn,bool entering)
     {
-        GameObject go=new GameObject(name); go.transform.SetParent(parent); go.transform.position=pos;
+        GameObject go=new GameObject(name); go.transform.SetParent(parent); go.transform.localPosition=pos;
         SphereCollider c=go.AddComponent<SphereCollider>(); c.isTrigger=true; c.radius=1.7f;
         go.AddComponent<HousePortal>().Configure(outside,inside,outSpawn,inSpawn,entering);
     }
 
     private static Transform NewPoint(Transform parent,string name,Vector3 pos,Quaternion rot)
     {
-        GameObject go=new GameObject(name); go.transform.SetParent(parent); go.transform.position=pos; go.transform.rotation=rot; return go.transform;
+        GameObject go=new GameObject(name); go.transform.SetParent(parent); go.transform.localPosition=pos; go.transform.localRotation=rot; return go.transform;
     }
 
     private static GameObject Cube(Transform parent,string name,Vector3 pos,Vector3 scale,Material mat)
