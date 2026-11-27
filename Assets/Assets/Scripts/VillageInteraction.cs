@@ -139,7 +139,6 @@ public class HousePortal : MonoBehaviour, IVillageInteractable
             VillageGameManager.Instance.ShowMessage(entering ? "Entraste a la casa" : "Saliste de la casa");
     }
 }
-}
 
 public class SearchableFurniture : MonoBehaviour, IVillageInteractable
 {
