@@ -29,6 +29,8 @@ public class PlayerMovement : MonoBehaviour
     private float stamina;
     private float recoveryTimer;
     private float jumpBufferCounter;
+    private float coyoteTimeCounter;
+    private const float CoyoteTime = 0.16f;
 
     private void Awake()
     {
@@ -83,7 +85,14 @@ public class PlayerMovement : MonoBehaviour
         float speed = moveSpeed * (wantsSprint ? sprintMultiplier : 1f);
         controller.Move(moveDirection * speed * Time.deltaTime);
 
+        // Comprobar el suelo después del desplazamiento horizontal evita perder el salto
+        // en el mismo frame en que el CharacterController vuelve a tocar el terreno.
         bool grounded = controller.isGrounded;
+        if (grounded)
+            coyoteTimeCounter = CoyoteTime;
+        else
+            coyoteTimeCounter = Mathf.Max(0f, coyoteTimeCounter - Time.deltaTime);
+
         if (Input.GetKeyDown(KeyCode.Space))
             jumpBufferCounter = jumpBufferTime;
         else
@@ -92,16 +101,29 @@ public class PlayerMovement : MonoBehaviour
         if (grounded && verticalVelocity.y < 0f)
             verticalVelocity.y = -2f;
 
-        if (grounded && jumpBufferCounter > 0f)
+        if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f)
         {
             verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             jumpBufferCounter = 0f;
+            coyoteTimeCounter = 0f;
         }
 
         verticalVelocity.y += gravity * Time.deltaTime;
-        controller.Move(verticalVelocity * Time.deltaTime);
+        controller.Move(Vector3.up * verticalVelocity.y * Time.deltaTime);
 
         KeepInsideWorldBounds();
+    }
+
+    public void SetWorldBoundsActive(bool active)
+    {
+        useWorldBounds = active;
+    }
+
+    public void ResetVerticalMotion()
+    {
+        verticalVelocity = Vector3.zero;
+        jumpBufferCounter = 0f;
+        coyoteTimeCounter = 0f;
     }
 
     private void KeepInsideWorldBounds()

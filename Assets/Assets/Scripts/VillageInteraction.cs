@@ -105,8 +105,21 @@ public class HousePortal : MonoBehaviour, IVillageInteractable
     public void Interact(GameObject player)
     {
         if (outsideRoot == null || insideRoot == null) return;
+
         CharacterController controller = player.GetComponent<CharacterController>();
+        PlayerMovement movement = player.GetComponent<PlayerMovement>();
+
+        // Las habitaciones están fuera de las coordenadas del mapa exterior.
+        // Desactivar los límites antes del teletransporte evita que empujen al jugador
+        // contra el borde del mundo mientras está dentro.
+        if (movement != null)
+        {
+            movement.SetWorldBoundsActive(false);
+            movement.ResetVerticalMotion();
+        }
+
         if (controller != null) controller.enabled = false;
+
         if (entering)
         {
             outsideRoot.SetActive(false);
@@ -119,7 +132,15 @@ public class HousePortal : MonoBehaviour, IVillageInteractable
             outsideRoot.SetActive(true);
             player.transform.SetPositionAndRotation(outsideSpawn.position, outsideSpawn.rotation);
         }
+
+        Physics.SyncTransforms();
         if (controller != null) controller.enabled = true;
+
+        if (movement != null)
+        {
+            movement.ResetVerticalMotion();
+            movement.SetWorldBoundsActive(!entering);
+        }
     }
 }
 

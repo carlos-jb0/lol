@@ -128,6 +128,19 @@ public static class VillageBuilder
         Cube(root,"Techo",new Vector3(0,3.65f,0),new Vector3(10,.2f,9),wall);
         Cube(root,"Pared frontal izquierda",new Vector3(-3.6f,1.8f,-4.5f),new Vector3(2.8f,3.6f,.2f),wall);
         Cube(root,"Pared frontal derecha",new Vector3(3.6f,1.8f,-4.5f),new Vector3(2.8f,3.6f,.2f),wall);
+
+        // Marco visible y hoja abierta junto al lateral para que la entrada
+        // parezca una puerta y no un hueco vacío.
+        Material doorWood = Mat("DoorWood_"+index,new Color(.22f,.12f,.065f));
+        Material doorTrim = Mat("DoorTrim_"+index,new Color(.38f,.25f,.13f));
+        Cube(root,"Marco puerta - izquierda",new Vector3(-2.2f,1.45f,-4.42f),new Vector3(.22f,2.9f,.32f),doorTrim);
+        Cube(root,"Marco puerta - derecha",new Vector3(2.2f,1.45f,-4.42f),new Vector3(.22f,2.9f,.32f),doorTrim);
+        Cube(root,"Marco puerta - dintel",new Vector3(0f,2.92f,-4.42f),new Vector3(4.6f,.22f,.32f),doorTrim);
+        GameObject openDoor = Cube(root,"Puerta abierta",new Vector3(-2.05f,1.35f,-4.18f),new Vector3(1.95f,2.65f,.16f),doorWood);
+        openDoor.transform.localRotation = Quaternion.Euler(0f,32f,0f);
+        for(int plank=-1;plank<=1;plank++)
+            Cube(root,"Refuerzo puerta",new Vector3(-2.05f+plank*.52f,1.35f,-4.08f),
+                new Vector3(.09f,2.45f,.08f),doorTrim);
         Cube(root,"Cama",new Vector3(-2.8f,.65f,1.8f),new Vector3(2.4f,.7f,3.2f),wood);
         Cube(root,"Colchón",new Vector3(-2.8f,1.08f,1.8f),new Vector3(2.25f,.18f,3.05f),Mat("Mattress_"+index,new Color(.72f,.68f,.56f)));
         MakeFurniture(root,"Cómoda",new Vector3(2.8f,.7f,2.7f),new Vector3(2.1f,1.4f,.9f),wood,gold,2,index);
