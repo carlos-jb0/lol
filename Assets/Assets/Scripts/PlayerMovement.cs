@@ -17,16 +17,30 @@ public class PlayerMovement : MonoBehaviour
     [Header("Salto y gravedad")]
     [SerializeField] private float jumpHeight = 1.5f;
     [SerializeField] private float gravity = -20f;
+    [SerializeField] private float jumpBufferTime = 0.15f;
+
+    [Header("Limites del reino")]
+    [SerializeField] private bool useWorldBounds = true;
+    [SerializeField] private Vector2 worldMin = new Vector2(-94f, -94f);
+    [SerializeField] private Vector2 worldMax = new Vector2(94f, 94f);
 
     private CharacterController controller;
     private Vector3 verticalVelocity;
     private float stamina;
     private float recoveryTimer;
+    private float jumpBufferCounter;
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
         stamina = maxStamina;
+    }
+
+    public void ConfigureWorldBounds(Vector2 minimum, Vector2 maximum)
+    {
+        worldMin = minimum;
+        worldMax = maximum;
+        useWorldBounds = true;
     }
 
     private void Update()
@@ -44,7 +58,9 @@ public class PlayerMovement : MonoBehaviour
         right.Normalize();
 
         Vector3 moveDirection = (forward * input.z + right * input.x).normalized;
-        bool wantsSprint = Input.GetKey(KeyCode.LeftShift) && input.sqrMagnitude > 0.01f && stamina > 0.5f;
+        bool sprintKey = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+        bool wantsSprint = sprintKey && input.sqrMagnitude > 0.01f && stamina > 0.1f;
+
         if (wantsSprint)
         {
             stamina = Mathf.Max(0f, stamina - staminaDrain * Time.deltaTime);
@@ -67,14 +83,40 @@ public class PlayerMovement : MonoBehaviour
         float speed = moveSpeed * (wantsSprint ? sprintMultiplier : 1f);
         controller.Move(moveDirection * speed * Time.deltaTime);
 
-        if (controller.isGrounded && verticalVelocity.y < 0f)
+        bool grounded = controller.isGrounded;
+        if (Input.GetKeyDown(KeyCode.Space))
+            jumpBufferCounter = jumpBufferTime;
+        else
+            jumpBufferCounter = Mathf.Max(0f, jumpBufferCounter - Time.deltaTime);
+
+        if (grounded && verticalVelocity.y < 0f)
             verticalVelocity.y = -2f;
 
-        if (controller.isGrounded && Input.GetButtonDown("Jump"))
+        if (grounded && jumpBufferCounter > 0f)
+        {
             verticalVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            jumpBufferCounter = 0f;
+        }
 
         verticalVelocity.y += gravity * Time.deltaTime;
         controller.Move(verticalVelocity * Time.deltaTime);
+
+        KeepInsideWorldBounds();
+    }
+
+    private void KeepInsideWorldBounds()
+    {
+        if (!useWorldBounds) return;
+
+        Vector3 position = transform.position;
+        Vector3 clamped = new Vector3(
+            Mathf.Clamp(position.x, worldMin.x, worldMax.x),
+            position.y,
+            Mathf.Clamp(position.z, worldMin.y, worldMax.y));
+
+        Vector3 correction = clamped - position;
+        if (correction.sqrMagnitude > 0.0001f)
+            controller.Move(correction);
     }
 
     private void OnGUI()
@@ -83,8 +125,11 @@ public class PlayerMovement : MonoBehaviour
         const float height = 16f;
         float x = 18f;
         float y = Screen.height - 38f;
+        float ratio = maxStamina <= 0f ? 0f : Mathf.Clamp01(stamina / maxStamina);
+
         GUI.Box(new Rect(x - 5f, y - 5f, width + 10f, height + 10f), GUIContent.none);
-        GUI.Box(new Rect(x, y, width * (maxStamina <= 0f ? 0f : stamina / maxStamina), height), GUIContent.none);
-        GUI.Label(new Rect(x + width + 12f, y - 2f, 90f, 20f), "Resistencia");
+        GUI.Box(new Rect(x, y, width * ratio, height), GUIContent.none);
+        GUI.Label(new Rect(x + width + 12f, y - 2f, 110f, 20f),
+            "Resistencia " + Mathf.CeilToInt(stamina));
     }
 }
