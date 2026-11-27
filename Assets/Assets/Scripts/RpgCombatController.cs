@@ -138,7 +138,7 @@ public class RpgCombatController : MonoBehaviour
 
         RpgArrowProjectile projectile = arrow.AddComponent<RpgArrowProjectile>();
         projectile.Configure(direction.normalized, equipment.WeaponDamage,
-            equipment.EquippedWeapon == RpgWeaponType.Crossbow ? 58f : 42f);
+            equipment.EquippedWeapon == RpgWeaponType.Crossbow ? 58f : 42f, gameObject);
     }
 
     private void TryDodge()
@@ -184,22 +184,39 @@ public class RpgArrowProjectile : MonoBehaviour
     private float speed;
     private float life = 2.2f;
     private float radius = .12f;
+    private GameObject owner;
 
-    public void Configure(Vector3 travelDirection, int hitDamage, float travelSpeed)
+    public void Configure(Vector3 travelDirection, int hitDamage, float travelSpeed, GameObject projectileOwner)
     {
         direction = travelDirection;
         damage = hitDamage;
         speed = travelSpeed;
+        owner = projectileOwner;
     }
 
     private void Update()
     {
         float distance = speed * Time.deltaTime;
-        RaycastHit hit;
-        if (Physics.SphereCast(transform.position, radius, direction, out hit,
-            distance, ~0, QueryTriggerInteraction.Ignore))
+        RaycastHit[] hits = Physics.SphereCastAll(transform.position, radius, direction,
+            distance, ~0, QueryTriggerInteraction.Ignore);
+        float nearest = float.PositiveInfinity;
+        RaycastHit selected = new RaycastHit();
+        bool found = false;
+        foreach (RaycastHit hit in hits)
         {
-            ArenaBeastAI beast = hit.collider.GetComponentInParent<ArenaBeastAI>();
+            if (hit.collider == null) continue;
+            if (owner != null && (hit.collider.transform == owner.transform ||
+                hit.collider.transform.IsChildOf(owner.transform))) continue;
+            if (hit.distance < nearest)
+            {
+                nearest = hit.distance;
+                selected = hit;
+                found = true;
+            }
+        }
+        if (found)
+        {
+            ArenaBeastAI beast = selected.collider.GetComponentInParent<ArenaBeastAI>();
             if (beast != null) beast.TakeDamage(damage);
             Destroy(gameObject);
             return;
