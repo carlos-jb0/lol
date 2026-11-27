@@ -49,7 +49,7 @@ public static class KingdomExpansionBuilder
         BuildGatehouse(expansion.transform, stone, darkStone, wood, cloth, gold, flame);
         BuildKeep(expansion.transform, stone, darkStone, roof, cloth, gold, flame);
         BuildOuterDistrict(expansion.transform, stone, roof, wood, timber, cloth, gold);
-        BuildMarketAndLandmarks(expansion.transform, stone, darkStone, wood, timber, cloth, gold, water);
+        BuildMarketAndLandmarks(expansion.transform, stone, darkStone, roof, wood, timber, cloth, gold, water);
         BuildStreetLights(expansion.transform, darkStone, wood, flame);
         BuildCamera(player);
         BuildKnightAppearance(player.transform);
@@ -213,7 +213,7 @@ public static class KingdomExpansionBuilder
     }
 
     private static void BuildMarketAndLandmarks(Transform root, Material stone, Material darkStone,
-        Material wood, Material timber, Material cloth, Material gold, Material water)
+        Material roof, Material wood, Material timber, Material cloth, Material gold, Material water)
     {
         Vector3[] stalls =
         {
