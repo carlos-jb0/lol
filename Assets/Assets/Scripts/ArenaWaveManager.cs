@@ -143,7 +143,7 @@ public class ArenaWaveManager : MonoBehaviour
             new Vector3(.58f, .42f, .58f), hideMat);
         for (int side = -1; side <= 1; side += 2)
         {
-            Part(root.transform, "Cuerno", PrimitiveType.Cone, new Vector3(side * .32f, 1.83f, .83f),
+            Part(root.transform, "Cuerno", PrimitiveType.Capsule, new Vector3(side * .32f, 1.83f, .83f),
                 new Vector3(.24f, .62f, .24f), hornMat);
             Part(root.transform, "Ojo", PrimitiveType.Sphere, new Vector3(side * .27f, 1.42f, 1.35f),
                 new Vector3(.12f, .12f, .08f), eyeMat);
