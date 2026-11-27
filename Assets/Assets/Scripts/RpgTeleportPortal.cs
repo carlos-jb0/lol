@@ -46,9 +46,8 @@ public class RpgTeleportPortal : MonoBehaviour, IVillageInteractable
         if (VillageGameManager.Instance != null)
             VillageGameManager.Instance.ShowMessage(prompt);
 
+        transitioning = false;
         if (sourceRoot != null)
             sourceRoot.SetActive(false);
-
-        transitioning = false;
     }
 }
