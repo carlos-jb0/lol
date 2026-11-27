@@ -40,6 +40,8 @@ public class SkyrimThirdPersonCamera : MonoBehaviour
 
     private void Update()
     {
+        if (RpgMerchant.IsAnyShopOpen) return;
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             Cursor.lockState = CursorLockMode.None;
