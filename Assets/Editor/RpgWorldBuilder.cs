@@ -492,6 +492,9 @@ public static class RpgWorldBuilder
         const int segments = 20;
         for (int i = 0; i < segments; i++)
         {
+            // Dejar libre el sector sur para que el jugador pueda usar el portal de salida.
+            if (i == 15) continue;
+
             float angle = i * Mathf.PI * 2f / segments;
             Vector3 position = new Vector3(Mathf.Cos(angle) * 24f, 3f, Mathf.Sin(angle) * 24f);
             GameObject wallSegment = Cube(root, "Muralla_Arena",
@@ -512,11 +515,13 @@ public static class RpgWorldBuilder
             AddCastleTorch(root, p + Vector3.up * .3f, wood, gold);
         }
 
-        Cube(root, "Porton_Arena", new Vector3(0f, 2.2f, -23.2f),
-            new Vector3(5f, 4.4f, .3f), wood);
-        for (int x = -2; x <= 2; x += 2)
-            Cube(root, "Refuerzo_Porton_Arena", new Vector3(x, 2.2f, -23f),
-                new Vector3(.16f, 4.1f, .2f), gold);
+        // Marco de la puerta sin hoja atravesada: el acceso debe quedar libre.
+        Cube(root, "Pilar_Porton_Arena_Izq", new Vector3(-3f, 2.2f, -23.2f),
+            new Vector3(.7f, 4.4f, .9f), wood);
+        Cube(root, "Pilar_Porton_Arena_Der", new Vector3(3f, 2.2f, -23.2f),
+            new Vector3(.7f, 4.4f, .9f), wood);
+        Cube(root, "Dintel_Porton_Arena", new Vector3(0f, 4.55f, -23.2f),
+            new Vector3(6.7f, .55f, .9f), gold);
 
         Cylinder(root, "Plataforma_Centro_Arena", new Vector3(0f, .13f, 0f),
             new Vector3(5f, .25f, 5f), gold);
