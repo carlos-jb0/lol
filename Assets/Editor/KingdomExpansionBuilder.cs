@@ -54,6 +54,10 @@ public static class KingdomExpansionBuilder
         BuildCamera(player);
         BuildKnightAppearance(player.transform);
 
+        PlayerMovement movement = player.GetComponent<PlayerMovement>();
+        if (movement != null)
+            movement.ConfigureWorldBounds(new Vector2(-94f, -94f), new Vector2(94f, 94f));
+
         RenderSettings.fog = true;
         RenderSettings.fogColor = new Color(.43f, .45f, .47f);
         RenderSettings.fogMode = FogMode.Exponential;
