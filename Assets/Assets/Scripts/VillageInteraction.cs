@@ -19,12 +19,25 @@ public class VillageGameManager : MonoBehaviour
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
+        Coins = PlayerPrefs.GetInt("RpgCoins", 0);
     }
 
     public void AddCoins(int amount)
     {
+        if (amount <= 0) return;
         Coins += amount;
+        PlayerPrefs.SetInt("RpgCoins", Coins);
+        PlayerPrefs.Save();
         ShowMessage("+" + amount + (amount == 1 ? " moneda" : " monedas"));
+    }
+
+    public bool SpendCoins(int amount)
+    {
+        if (amount < 0 || Coins < amount) return false;
+        Coins -= amount;
+        PlayerPrefs.SetInt("RpgCoins", Coins);
+        PlayerPrefs.Save();
+        return true;
     }
 
     public void ShowMessage(string message)
@@ -104,71 +117,28 @@ public class HousePortal : MonoBehaviour, IVillageInteractable
 
     public void Interact(GameObject player)
     {
-        if (outsideRoot == null || insideRoot == null) return;
+        if (outsideRoot == null || insideRoot == null || outsideSpawn == null || insideSpawn == null)
+            return;
 
-        CharacterController controller = player.GetComponent<CharacterController>();
-        PlayerMovement movement = player.GetComponent<PlayerMovement>();
-        float bottomOffset = controller != null
-            ? controller.bounds.min.y - player.transform.position.y
-            : 0f;
-
-        if (movement != null)
-        {
-            movement.SetWorldBoundsActive(false);
-            movement.ResetVerticalMotion();
-        }
-        if (controller != null) controller.enabled = false;
-
-        Transform destinationPoint;
         if (entering)
         {
             outsideRoot.SetActive(false);
             insideRoot.SetActive(true);
-            destinationPoint = insideSpawn;
+            Physics.SyncTransforms();
+            RpgTeleportUtility.Teleport(player, insideSpawn, false);
         }
         else
         {
             insideRoot.SetActive(false);
             outsideRoot.SetActive(true);
-            destinationPoint = outsideSpawn;
+            Physics.SyncTransforms();
+            RpgTeleportUtility.Teleport(player, outsideSpawn, true);
         }
 
-        Vector3 destination = destinationPoint.position;
-        Physics.SyncTransforms();
-
-        // Ajusta la altura usando el suelo real y el tamaño del CharacterController.
-        // Así no aparece por debajo del terreno al salir ni suspendido dentro.
-        RaycastHit[] groundHits = Physics.RaycastAll(
-            destination + Vector3.up * 5f, Vector3.down, 15f, ~0,
-            QueryTriggerInteraction.Ignore);
-        float nearestGround = float.PositiveInfinity;
-        foreach (RaycastHit hit in groundHits)
-        {
-            if (hit.collider == null || hit.collider.transform == player.transform ||
-                hit.collider.transform.IsChildOf(player.transform)) continue;
-            if (hit.distance < nearestGround) nearestGround = hit.distance;
-        }
-
-        if (!float.IsPositiveInfinity(nearestGround))
-        {
-            float groundY = destination.y + 5f - nearestGround;
-            destination.y = groundY - bottomOffset + (controller != null ? controller.skinWidth : 0.08f) + 0.03f;
-        }
-        else
-        {
-            destination.y = Mathf.Max(destination.y, 1.2f);
-        }
-
-        player.transform.SetPositionAndRotation(destination, destinationPoint.rotation);
-        Physics.SyncTransforms();
-        if (controller != null) controller.enabled = true;
-
-        if (movement != null)
-        {
-            movement.ResetVerticalMotion();
-            movement.SetWorldBoundsActive(!entering);
-        }
+        if (VillageGameManager.Instance != null)
+            VillageGameManager.Instance.ShowMessage(entering ? "Entraste a la casa" : "Saliste de la casa");
     }
+}
 }
 
 public class SearchableFurniture : MonoBehaviour, IVillageInteractable
@@ -205,6 +175,6 @@ public class CoinPickup : MonoBehaviour, IVillageInteractable
     public void Interact(GameObject player)
     {
         if (VillageGameManager.Instance != null) VillageGameManager.Instance.AddCoins(value);
-        Destroy(transform.root.gameObject);
+        Destroy(gameObject);
     }
 }
