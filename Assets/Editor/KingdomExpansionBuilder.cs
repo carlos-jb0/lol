@@ -74,10 +74,8 @@ public static class KingdomExpansionBuilder
         for (float p = -90f; p <= 90f; p += segment)
         {
             if (Mathf.Abs(p) > 10f)
-            {
                 WallSegment(root, new Vector3(p, 5f, -edge), true, stone, darkStone);
-                WallSegment(root, new Vector3(p, 5f, edge), true, stone, darkStone);
-            }
+            WallSegment(root, new Vector3(p, 5f, edge), true, stone, darkStone);
             WallSegment(root, new Vector3(-edge, 5f, p), false, stone, darkStone);
             WallSegment(root, new Vector3(edge, 5f, p), false, stone, darkStone);
         }
