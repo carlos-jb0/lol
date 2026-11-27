@@ -87,7 +87,7 @@ public class PlayerMovement : MonoBehaviour
 
         // Comprobar el suelo después del desplazamiento horizontal evita perder el salto
         // en el mismo frame en que el CharacterController vuelve a tocar el terreno.
-        bool grounded = controller.isGrounded;
+        bool grounded = CheckGrounded();
         if (grounded)
             coyoteTimeCounter = CoyoteTime;
         else
@@ -124,6 +124,27 @@ public class PlayerMovement : MonoBehaviour
         verticalVelocity = Vector3.zero;
         jumpBufferCounter = 0f;
         coyoteTimeCounter = 0f;
+    }
+
+    private bool CheckGrounded()
+    {
+        if (controller.isGrounded) return true;
+
+        // El origen del rayo parte del centro de la cápsula y busca el piso
+        // hasta un poco más allá de la base para tolerar pequeños desniveles.
+        Bounds bounds = controller.bounds;
+        RaycastHit[] hits = Physics.RaycastAll(
+            bounds.center, Vector3.down, bounds.extents.y + 0.22f,
+            ~0, QueryTriggerInteraction.Ignore);
+
+        foreach (RaycastHit hit in hits)
+        {
+            if (hit.collider == null) continue;
+            Transform hitTransform = hit.collider.transform;
+            if (hitTransform == transform || hitTransform.IsChildOf(transform)) continue;
+            return true;
+        }
+        return false;
     }
 
     private void KeepInsideWorldBounds()
