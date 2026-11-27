@@ -119,20 +119,17 @@ public class HousePortal : MonoBehaviour, IVillageInteractable
         }
         if (controller != null) controller.enabled = false;
 
-        GameObject destinationRoot;
         Transform destinationPoint;
         if (entering)
         {
             outsideRoot.SetActive(false);
             insideRoot.SetActive(true);
-            destinationRoot = insideRoot;
             destinationPoint = insideSpawn;
         }
         else
         {
             insideRoot.SetActive(false);
             outsideRoot.SetActive(true);
-            destinationRoot = outsideRoot;
             destinationPoint = outsideSpawn;
         }
 
@@ -171,7 +168,8 @@ public class HousePortal : MonoBehaviour, IVillageInteractable
             movement.ResetVerticalMotion();
             movement.SetWorldBoundsActive(!entering);
         }
-    }}
+    }
+}
 
 public class SearchableFurniture : MonoBehaviour, IVillageInteractable
 {
