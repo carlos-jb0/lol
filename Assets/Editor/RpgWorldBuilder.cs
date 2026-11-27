@@ -85,6 +85,9 @@ public static class RpgWorldBuilder
         BuildWorldResources(root.transform, herb, iron, wood, gold);
         BuildCastleAndArena(root.transform, stone, darkStone, wood, darkWood, gold, cloth, floor, wall);
         ConfigurePlayer(player);
+        if (Object.FindObjectOfType<VillageGameManager>() == null)
+            new GameObject("VillageGameManager").AddComponent<VillageGameManager>();
+        ApplyExistingWorldMaterials(town.transform, grass, dirt, stone);
         ApplyGraphics(root.transform);
 
         AssetDatabase.SaveAssets();
@@ -583,6 +586,28 @@ public static class RpgWorldBuilder
         QualitySettings.shadowDistance = 65f;
         QualitySettings.shadowResolution = ShadowResolution.Medium;
         QualitySettings.antiAliasing = 2;
+    }
+
+    private static void ApplyExistingWorldMaterials(Transform town, Material grass, Material dirt, Material stone)
+    {
+        ApplyMaterial(town.Find("Terreno del pueblo"), grass);
+        ApplyMaterial(town.Find("Camino principal"), dirt);
+        ApplyMaterial(town.Find("Camino transversal"), dirt);
+        ApplyMaterial(town.Find("Plaza central"), stone);
+
+        Transform expansion = town.Find("REINO_EXPANSION");
+        if (expansion != null)
+        {
+            ApplyMaterial(expansion.Find("Camino hacia la puerta"), dirt);
+            // Mantener los materiales originales de las murallas y modelos del castillo.
+        }
+    }
+
+    private static void ApplyMaterial(Transform target, Material material)
+    {
+        if (target == null || material == null) return;
+        Renderer renderer = target.GetComponent<Renderer>();
+        if (renderer != null) renderer.sharedMaterial = material;
     }
 
     private static void EnsureFolder(string path)
