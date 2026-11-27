@@ -108,31 +108,58 @@ public class HousePortal : MonoBehaviour, IVillageInteractable
 
         CharacterController controller = player.GetComponent<CharacterController>();
         PlayerMovement movement = player.GetComponent<PlayerMovement>();
+        float bottomOffset = controller != null
+            ? controller.bounds.min.y - player.transform.position.y
+            : 0f;
 
-        // Las habitaciones están fuera de las coordenadas del mapa exterior.
-        // Desactivar los límites antes del teletransporte evita que empujen al jugador
-        // contra el borde del mundo mientras está dentro.
         if (movement != null)
         {
             movement.SetWorldBoundsActive(false);
             movement.ResetVerticalMotion();
         }
-
         if (controller != null) controller.enabled = false;
 
+        Transform destinationPoint;
         if (entering)
         {
             outsideRoot.SetActive(false);
             insideRoot.SetActive(true);
-            player.transform.SetPositionAndRotation(insideSpawn.position, insideSpawn.rotation);
+            destinationPoint = insideSpawn;
         }
         else
         {
             insideRoot.SetActive(false);
             outsideRoot.SetActive(true);
-            player.transform.SetPositionAndRotation(outsideSpawn.position, outsideSpawn.rotation);
+            destinationPoint = outsideSpawn;
         }
 
+        Vector3 destination = destinationPoint.position;
+        Physics.SyncTransforms();
+
+        // Ajusta la altura usando el suelo real y el tamaño del CharacterController.
+        // Así no aparece por debajo del terreno al salir ni suspendido dentro.
+        RaycastHit[] groundHits = Physics.RaycastAll(
+            destination + Vector3.up * 5f, Vector3.down, 15f, ~0,
+            QueryTriggerInteraction.Ignore);
+        float nearestGround = float.PositiveInfinity;
+        foreach (RaycastHit hit in groundHits)
+        {
+            if (hit.collider == null || hit.collider.transform == player.transform ||
+                hit.collider.transform.IsChildOf(player.transform)) continue;
+            if (hit.distance < nearestGround) nearestGround = hit.distance;
+        }
+
+        if (!float.IsPositiveInfinity(nearestGround))
+        {
+            float groundY = destination.y + 5f - nearestGround;
+            destination.y = groundY - bottomOffset + (controller != null ? controller.skinWidth : 0.08f) + 0.03f;
+        }
+        else
+        {
+            destination.y = Mathf.Max(destination.y, 1.2f);
+        }
+
+        player.transform.SetPositionAndRotation(destination, destinationPoint.rotation);
         Physics.SyncTransforms();
         if (controller != null) controller.enabled = true;
 
