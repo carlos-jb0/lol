@@ -47,6 +47,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+        if (RpgMerchant.IsAnyShopOpen) return;
+
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
         Vector3 input = new Vector3(horizontal, 0f, vertical).normalized;
