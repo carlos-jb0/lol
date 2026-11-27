@@ -52,7 +52,7 @@ public static class RpgTeleportUtility
         }
 
         if (foundGround)
-            target.y = groundY - bottomOffset + 0.02f;
+            target.y = groundY - bottomOffset + (controller != null ? controller.skinWidth : 0.08f) + 0.02f;
 
         player.transform.SetPositionAndRotation(target, rotation);
         Physics.SyncTransforms();
