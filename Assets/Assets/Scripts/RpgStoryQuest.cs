@@ -46,7 +46,7 @@ public class RpgStoryQuest : MonoBehaviour
 
     public void RegisterRelics(int amount)
     {
-        if (!accepted || completed || amount <= 0) return;
+        if (completed || amount <= 0) return;
         relics += amount;
         Save();
         TryComplete();
@@ -54,7 +54,7 @@ public class RpgStoryQuest : MonoBehaviour
 
     public void RegisterArenaVictory()
     {
-        if (!accepted || completed) return;
+        if (completed) return;
         arenaWon = true;
         Save();
         TryComplete();
