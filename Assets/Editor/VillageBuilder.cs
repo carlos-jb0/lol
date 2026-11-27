@@ -87,6 +87,7 @@ public static class VillageBuilder
         mesh.transform.SetParent(outside.transform, false);
         mesh.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
         mesh.transform.localScale = Vector3.one * .9f;
+        CreateHouseCollision(outside.transform);
 
         GameObject interior = new GameObject(label + "_Interior");
         interior.transform.SetParent(parent);
@@ -99,6 +100,23 @@ public static class VillageBuilder
         Transform insideSpawn = NewPoint(interior.transform, "PuntoInterior", new Vector3(0,1f,-3.1f), Quaternion.identity);
         AddPortal(parent, label+"_Entrar", door, outside, interior, outsideSpawn, insideSpawn, true);
         AddPortal(interior.transform, label+"_Salir", new Vector3(0,1f,-3.8f), outside, interior, outsideSpawn, insideSpawn, false);
+    }
+
+    private static void CreateHouseCollision(Transform root)
+    {
+        // Tres paredes invisibles dejan libre el frente para alcanzar la puerta.
+        AddWallCollider(root, "Colision pared izquierda", new Vector3(-2.85f, 1.45f, 0f), new Vector3(.25f, 2.9f, 5.3f));
+        AddWallCollider(root, "Colision pared derecha", new Vector3(2.85f, 1.45f, 0f), new Vector3(.25f, 2.9f, 5.3f));
+        AddWallCollider(root, "Colision pared trasera", new Vector3(0f, 1.45f, -2.55f), new Vector3(5.8f, 2.9f, .25f));
+    }
+
+    private static void AddWallCollider(Transform parent, string name, Vector3 position, Vector3 size)
+    {
+        GameObject wall = new GameObject(name);
+        wall.transform.SetParent(parent);
+        wall.transform.localPosition = position;
+        BoxCollider collider = wall.AddComponent<BoxCollider>();
+        collider.size = size;
     }
 
     private static void BuildRoom(Transform root, Material wall, Material wood, Material gold, int index)
