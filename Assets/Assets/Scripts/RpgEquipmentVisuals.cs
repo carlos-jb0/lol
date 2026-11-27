@@ -55,9 +55,9 @@ public class RpgEquipmentVisuals : MonoBehaviour
         root.transform.localRotation = Quaternion.Euler(0f, 0f, -18f);
 
         Material metal = MakeMaterial("RPG_Weapon_Metal", new Color(.63f, .68f, .72f), .72f);
-        Material dark = MakeMaterial("RPG_Weapon_Handle", new Color(.18f, .095f, .045f));
+        Material dark = MakeMaterial("RPG_Weapon_Handle", new Color(.18f, .095f, .045f), .05f);
         Material gold = MakeMaterial("RPG_Weapon_Gold", new Color(.78f, .55f, .18f), .55f);
-        Material wood = MakeMaterial("RPG_Weapon_Wood", new Color(.36f, .20f, .09f));
+        Material wood = MakeMaterial("RPG_Weapon_Wood", new Color(.36f, .20f, .09f), .02f);
 
         if (type == RpgWeaponType.Bow || type == RpgWeaponType.AncientBow)
         {
