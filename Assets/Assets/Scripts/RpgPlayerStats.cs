@@ -73,9 +73,15 @@ public class RpgPlayerStats : MonoBehaviour
         if (controller != null) controller.enabled = false;
         if (hasCheckpoint) transform.position = checkpoint;
         if (controller != null) controller.enabled = true;
+        PlayerMovement movement = GetComponent<PlayerMovement>();
+        if (movement != null)
+        {
+            movement.ResetVerticalMotion();
+            movement.SetWorldBoundsActive(true);
+        }
         health = MaxHealth;
         Save();
-        RpgTeleportUtility.Teleport(gameObject, null, true);
+        Physics.SyncTransforms();
     }
 
     public void AddExperience(int amount)
